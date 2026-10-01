@@ -37,7 +37,10 @@ print(f"Output file: {output_file_jsonl}")
 
 
 def process_single_row(row, idx): 
-    new_row = row.copy()
+    # A pandas Series can use a strict string dtype (notably with pandas 3),
+    # which rejects the parsed RUBRIC list and numeric metadata below.
+    # Use a plain dict because the output row intentionally contains mixed types.
+    new_row = row.to_dict()
     dilemma_situation = new_row['DILEMMA']
     theory = new_row["THEORY"]
     instruction_prompt = create_prompt_template_for_reasoning_eval_natural_behavior(theory=theory)

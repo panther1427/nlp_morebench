@@ -37,6 +37,7 @@ else:
     output_filename = args.input_file.replace("generations/", 
                                               f"{args.judgement_type}_judgements/")
 
+print(output_filename, args.input_file)
 assert args.input_file != output_filename, "Input and output filenames must be different"
 
 # Create output directory if it doesn't exist
@@ -48,7 +49,7 @@ print(f"Judge model: {args.judge_model}")
 print(f"Judging: {args.judgement_type}")
 
 # Load data
-with open(args.input_file, "r") as f:
+with open(args.input_file, "r", encoding='utf-8') as f:
     data = [json.loads(line) for line in f.readlines()]
 
 

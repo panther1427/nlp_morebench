@@ -39,7 +39,7 @@ def write_to_jsonl(data, output_file):
 def load_existing_indices(output_file):
     """Load existing indices from JSONL file"""
     try:
-        with open(output_file, 'r') as f:
+        with open(output_file, 'r', encoding='utf-8') as f:
             return [json.loads(line)['idx'] for line in f if line.strip()]
     except FileNotFoundError:
         return []
@@ -48,7 +48,7 @@ def load_existing_indices(output_file):
 def load_existing_indices_as_set(output_file):
     """Load existing indices from JSONL file as a set for faster lookup"""
     try:
-        with open(output_file, 'r') as f:
+        with open(output_file, 'r', encoding='utf-8') as f:
             return set([json.loads(line)['idx'] for line in f if line.strip()])
     except FileNotFoundError:
         return set()
@@ -63,7 +63,7 @@ def collect_response(client, model, user_prompt, api_provider):
         "messages": message_prompts,
         "temperature": 0,
         "top_p": 0.01,
-        "max_tokens": 500,
+        "max_tokens": 10_000,
     }
 
     if api_provider in ['openai', 'openrouter', 'togetherai', 'xai']:
@@ -221,7 +221,7 @@ def prepare_criterion_data(data, judgement_type):
     for dp in data:
         for criterion_item in dp["RUBRIC"]:
             criterion_entry = {
-                "task_id": dp["TASK_ID"],
+                "task_id": dp.get("TASK_ID", dp["idx"]),
                 "criterion_id": criterion_item["id"],
                 "criterion": criterion_item["title"],
                 "response": dp[judgement_type],
@@ -250,7 +250,7 @@ def prepare_criterion_data(data, judgement_type):
 # Scoring and calculation functions
 def load_judgement_data(filename):
     """Load judgement data from JSONL file"""
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding='utf-8') as f:
         return [json.loads(line) for line in f.readlines()]
 
 

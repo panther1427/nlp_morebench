@@ -4,3 +4,4 @@ openai
 tqdm
 numpy
 datasets
+sentence-transformers

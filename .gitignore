@@ -26,3 +26,6 @@ __pycache__/
 *.pyc
 prompts/__pycache__/
 prompts/*.pyc
+
+# Cached embeddings for local RAG retrieval
+.morebench_cache/

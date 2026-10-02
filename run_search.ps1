@@ -28,10 +28,7 @@ foreach ($name in $requiredVariables) {
     }
 }
 
-python (Join-Path $PSScriptRoot "run_best_judge_on_responses.py") `
-   -i "generations/space-bunny-alpha_reasoning_medium_seed_0.jsonl" `
-   -ak $env:API_OPEN_ROUTER `
-   -jt model_resp `
-   -jm $env:MODEL `
-   -d `
-   -n 10
+python morebench_retrieve.py `
+  --dilemma "Mountain, mountaineer, slowing, group, Should I leave the struggling member behind with enough supplies?" `
+  -k 2 `
+  --hf-token $env:API_HUGGING_FACE

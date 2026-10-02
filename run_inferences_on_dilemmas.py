@@ -69,7 +69,10 @@ def process_single_row(row, idx):
 
 
 # Load data
-ds = load_dataset("morebench/morebench", token=args.hf_token, data_files="morebench_public.csv", split="train")
+ds = load_dataset("morebench/morebench", 
+                  token=args.hf_token, 
+                  data_files="morebench_public.csv", 
+                  split="train")
 df = ds.to_pandas()
 
 df = df[df['THEORY'] == 'neutral']

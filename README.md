@@ -209,6 +209,29 @@ python calculate_morebench_theory.py \
 
 ## Script Reference
 
+### Similar-dilemma retrieval (RAG)
+
+`morebench_retrieve.py` embeds the MoReBench dilemmas and returns the `k` nearest
+dilemmas together with their rubric criteria, ranked by cosine similarity. The
+embedding index is cached after the first run.
+
+```python
+from morebench_retrieve import build_morebench_retriever
+
+retriever = build_morebench_retriever(token="YOUR_HF_TOKEN")
+matches = retriever.search("A manager must decide whether to report a colleague.", k=5)
+```
+
+The token can instead be supplied through the `HF_TOKEN` environment variable;
+it is used for both the dataset and embedding-model downloads.
+
+For a single query, the convenience function `retrieve_similar_dilemmas(...)`
+is also available. From the command line:
+
+```bash
+python morebench_retrieve.py --dilemma "A manager must decide..." -k 5 --hf-token YOUR_HF_TOKEN
+```
+
 ### Generation Scripts
 
 #### `run_inferences_on_dilemmas.py`

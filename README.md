@@ -1,415 +1,68 @@
-# MoReBench: Evaluating Procedural and Pluralistic Moral Reasoning in Language Models, More than Outcomes
+# Can MoreBench Be Gamed by Verbosity?
+## A Controlled Robustness Study
 
-**Evaluating how well language models reason through complex moral dilemmas.**
+## Abstract
 
-MoReBench tests LLMs on 1000 real-world ethical scenarios across diverse domains (healthcare, business, technology, law) and ethical frameworks (consequentialism, deontology, virtue ethics). Unlike current tasks focusing on the outcome accuracy (e.g. math and code), MoReBench evaluates the *quality of moral reasoning* through multi-dimensional rubrics.
+MoreBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. The paper reports that longer answers can satisfy more criteria due to more text and introduces MoreBench-Hard, a length-corrected score, to fix this. This project tests whether that correction makes the adjusted score less sensitive to extra wording. We will start from a fixed set of model responses to public moral dilemmas, then create concise, expanded, and irrelevant-padding versions while keeping each response's moral position and core reasons stable. We will score versions with the benchmark's standard rubrics, compare raw and length-corrected scores, and compare different judges. Our goal is not to decide whether a model is morally good. We ask a narrower question: can surface length changes alter what the benchmark rewards? The project will measure the size and consistency of those changes, identify which rubric dimensions are most affected, and provide evidence about when MoreBench scores can be trusted as a comparison of reasoning quality.
 
-<p align="center">
-  <a href="https://morebench.github.io/">Project Website</a> | 
-  <a href="https://arxiv.org/abs/2510.16380">Paper</a> | 
-  <a href="https://huggingface.co/datasets/morebench/morebench">Dataset</a> | 
-  <a href="link">Leaderboard - Coming soon</a> | 
-  <a href="link">UK AISI Inspect Eval - Coming soon</a>
-</p>
+## Contributions
 
+- A controlled test of whether response length changes MoreBench scores when the underlying position and main reasons are held constant.
+- An empirical assessment of whether MoreBench-Hard reduces score changes from verbosity and whether irrelevant padding affects scores.
+- A dimension-level and judge-level analysis that can show where the benchmark is most sensitive.
+- A small, reproducible evaluation protocol that other researchers can reuse to test length sensitivity in rubric-based benchmarks.
 
-![pipeline](img/intro_pipeline_img.png)
+The novelty is the controlled perturbation and evaluation of the benchmark's existing length correction, rather than proposing a new moral-reasoning model.
 
----
+## Proposed additional datasets
 
-## Quick Start
+No additional dataset is planned. We will use the theory-neutral public MoReBench split. The [paper](https://arxiv.org/abs/2510.16380) describes 1,000 scenarios overall and reserves 500 as the public evaluation set, with the remainder held private. We will use only public scenarios and draw our own stratified evaluation sample within that set.
 
-```bash
-# Clone the repository
-git clone https://github.com/morebench/morebench.git
-cd morebench
+The dataset is available through the [Hugging Face dataset page](https://huggingface.co/datasets/morebench/morebench). Its CSV rows include the dilemma text, source and type, theory, role, context, and a RUBRIC field containing expert-written criteria. Criteria include a title, weight, and rubric dimension. The repository's inference scripts load the CSV through Hugging Face Datasets and write model outputs to JSONL; its README documents separate response-generation, judging, and score-calculation steps ([code and usage](https://github.com/morebench/morebench)). We will inspect the current data card and repository examples before fixing the loader, then record the dataset version and selected row IDs. We expect about 500 public cases, each with roughly 20–49 criteria. For cost control, we plan to sample 50 cases, stratified by role and context. At the paper’s mean of 23 criteria per case, four conditions across 50 cases produce about 4,600 criterion-response decisions per judge; the second judge will cover a smaller subset. We will preserve the source data unchanged and store generated variants in JSONL with case ID, condition, response text, character count, and prompt/model metadata. API keys will stay outside the repository.
 
-# create a new virtual environment
-conda create -n morebench python=3.12 -y
-conda activate morebench
+## Methods
 
-# Install dependencies
-pip install -r requirements.txt
+1. **Sample and baseline.** Load the public theory-neutral cases and select 50 across moral roles and contexts. Generate one final answer per case with a single accessible model, then freeze those answers so the base reasoning is identical across conditions.
+2. **Create length conditions.** Keep the original response and produce a concise version, a longer version that makes the same reasons more explicit, and a padded version that adds plausible but morally irrelevant material. Aim for clearly separated character counts around the benchmark's 1,000-character reference. Log prompts and lengths. Two team members will independently review a 20% sample for changes to the conclusion or core reasons; revise or exclude variants that fail this check.
+3. **Judge and score.** Use the official rubric-based pipeline and GPT-oss-120b, the paper’s cost-conscious primary judge, if accessible. Judge responses under randomized IDs, with the same rubric and prompt settings across conditions. Repeat a smaller subset with a second judge if API access permits; record exact model versions. Use final answers, not private reasoning traces.
+4. **Analyze.** Reproduce MoreBench-Regular and MoreBench-Hard as defined in the paper and compare paired score changes by condition. Report overall and five-dimension scores, character count, criterion-level changes, and paired bootstrap confidence intervals over cases. The primary comparison is original versus padded; concise and expanded conditions test the broader length trend.
 
-# 1. Generate model responses
-python run_inferences_on_dilemmas.py \
-    -ap openai \
-    -ak YOUR_API_KEY \
-    -m gpt-4o \
-    -ht YOUR_HUGGINGFACE_TOKEN
+This measures evaluator robustness, not moral truth. Rewriting may change clarity or content despite instructions, and the judges are imperfect. Human checks and paired comparisons help limit those risks.
 
-# 2. Evaluate with judge model
-python run_best_judge_on_responses.py \
-    -i generations/gpt-4o_reasoning_medium_seed_0.jsonl \
-    -ak YOUR_OPENROUTER_KEY \
-    -jt model_resp
-    
-# 3. Calculate benchmark scores
-python calculate_morebench.py \
-    -i model_resp_judgements/gpt-4o_reasoning_medium_seed_0.jsonl \
-    -f human
-```
+## Proposed timeline
 
-**Output**: Scores across 5 dimensions: identifying (moral factors), logical process, clear process, helpful outcome, harmless outcome
+- **Week 1:** Confirm dataset access, API budget, and rubric parsing; load data and reproduce scoring on five pilot cases.
+- **Week 2:** Select the 50-case sample, finalize prompts and conditions, and freeze the analysis plan.
+- **Week 3:** Generate variants and complete the human consistency check.
+- **Week 4:** Run judging, calculate scores, and resolve pipeline issues.
+- **Week 5 / Milestone P2:** Complete paired analysis, figures, reproducibility checks, and the final project report.
+
+## Organization within the team
+
+Tentative roles, to be combined if the team is small:
+
+- **Data and pipeline lead:** Load and version the public data; adapt the benchmark scoring scripts.
+- **Perturbation lead:** Generate concise, expanded, and padded responses; maintain condition metadata.
+- **Validation and analysis lead:** Coordinate human checks, scoring, statistical analysis, and plots.
+- **Writing and reproducibility lead:** Keep prompts, run instructions, and results organized; draft the report.
+
+Internal milestones through P2: (1) data and scoring pipeline runs on five cases; (2) sample and prompts are frozen; (3) all variants pass the consistency check; (4) judging and scoring are complete; (5) P2 analysis and report are ready.
 
 ---
 
-## How It Works
+# Appendix
 
-```
-┌─────────────────┐
-│  Moral Dilemma  │  "As a oversight Scientist AI,... Should I report it or not?"
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Model Response │  Extended reasoning + final decision
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Judge Scoring  │  Evaluate against 20-47 rubric criteria
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐  
-│    Calculate    |  Aggregate by dimensions + overall 
-|      Score      |  1. MoReBench-Regular: Raw score
-|  (Regular/Hard) │  2. MoReBench-Hard: Length-controlled score
-└─────────────────┘  
-```
+## Repo organisation
 
-### Two Dataset Variants
+- **README.md** — proposal, setup notes, and run instructions.
+- **data/** — dataset access notes and selected case IDs; do not commit API keys or duplicate the full dataset.
+- **prompts/** — frozen prompts for answer generation and transformations.
+- **src/** — data loading, variant validation, scoring, and analysis scripts.
+- **results/** — JSONL responses and judge outputs, with run metadata.
+- **figures/** — plots and tables used in the report.
+- **report/** — final write-up and references.
 
-| Dataset | Size | Description |
-|---------|------|-------------|
-| **MoReBench** | 1000 | Procedural reasoning on diverse moral scenarios |
-| **MoReBench-Theory** | 150 | Procedural reasoning under five moral frameworks (Kantian Deontology, Benthamite Act Utilitarianism, Aristotelian Virtue Ethics, Scanlonian Contractualism, and Gauthierian Contractarianism) |
+## Questions for TAs
 
----
-
-## Complete Pipeline
-
-### 1. Generate Responses
-
-#### MoReBench Dataset (1000 samples)
-
-```bash
-python run_inferences_on_dilemmas.py \
-    -ap openai \
-    -ak $OPENAI_KEY \
-    -m o4-mini \
-    -r \
-    -re high \
-    -ht YOUR_HUGGINGFACE_TOKEN
-```
-
-#### MoReBench-Theory Dataset (150 samples)
-
-```bash
-python run_inferences_on_dilemmas_theory.py \
-    -ap openai \
-    -ak $OPENAI_KEY \
-    -m o4-mini \
-    -r \
-    -re high \
-    -ht YOUR_HUGGINGFACE_TOKEN
-```
-
-### 2. Judge Responses
-
-You can judge both the final response (`model_resp`) and the thinking process (`thinking_trace`):
-
-#### Judge Final Responses
-
-```bash
-# MoReBench dataset
-python run_best_judge_on_responses.py \
-    -i generations/gpt-4o_reasoning_high_seed_0.jsonl \
-    -ak $OPENROUTER_KEY \
-    -jt model_resp
-
-# MoReBench-Theory dataset
-python run_best_judge_on_responses_theory.py \
-    -i generations_theory/gpt-4o_reasoning_high.jsonl \
-    -ak $OPENROUTER_KEY \
-    -jt model_resp
-```
-
-#### Judge Thinking Traces
-
-```bash
-# MoReBench dataset
-python run_best_judge_on_responses.py \
-    -i generations/gpt-4o_reasoning_high_seed_0.jsonl \
-    -ak $OPENROUTER_KEY \
-    -jt thinking_trace
-
-# MoReBench-Theory dataset
-python run_best_judge_on_responses_theory.py \
-    -i generations_theory/gpt-4o_reasoning_high.jsonl \
-    -ak $OPENROUTER_KEY \
-    -jt thinking_trace
-```
-
-### 3. Calculate Benchmark Scores
-
-#### MoReBench Dataset Results
-
-```bash
-# Human-readable output
-python calculate_morebench.py \
-    -i model_resp_judgements/gpt-4o_reasoning_high_seed_0.jsonl \
-    -f human
-
-# LaTeX table row (for papers)
-python calculate_morebench.py \
-    -i model_resp_judgements/gpt-4o_reasoning_high_seed_0.jsonl \
-    -f latex
-```
-
-**Human-readable output:**
-```
-None: {'overall': 75.1}
-dilemma_source: {'daily_dilemmas': 75.2, 'ai_risk': 68.9, 'expert_case': 82.1}
-role_domain: {'ai_advisor': 73.4, 'ai_agent': 76.8}
-dilemma_type: {'short_case': 71.5, 'long_case': 79.3}
-criterion_dimension: {'identifying': 78.2, 'logical process': 72.5, 'clear process': 70, 'helpful outcome': 70, 'harmless outcome': 70 ...}
-criterion_weight: {1: 74.3, 2: 76.8, 3: 75.1}
-input_tokens: {'input_tokens': 850}
-output_tokens: {'output_tokens': 450}
-len: {'len': 1250}
-
-=== Summary ===
-Overall Score: 75.1
-Average Response Length: 1250 chars
-Normalized Score (per 1k chars): 60.1
-```
-
-**LaTeX output:**
-```
-75.2 & 68.9 & 82.1 & 71.5 & 79.3 & 73.4 & 76.8 & 75.1 & 1250 & 60.1
-```
-
-#### Theory Dataset Results
-
-```bash
-# Human-readable output
-python calculate_morebench_theory.py \
-    -i model_resp_judgements_theory/gpt-4o_reasoning_high.jsonl \
-    -f human
-
-# LaTeX table row
-python calculate_morebench_theory.py \
-    -i model_resp_judgements_theory/gpt-4o_reasoning_high.jsonl \
-    -f latex
-```
-
----
-
-## Script Reference
-
-### Similar-dilemma retrieval (RAG)
-
-`morebench_retrieve.py` embeds the MoReBench dilemmas and returns the `k` nearest
-dilemmas together with their rubric criteria, ranked by cosine similarity. The
-embedding index is cached after the first run.
-
-```python
-from morebench_retrieve import build_morebench_retriever
-
-retriever = build_morebench_retriever(token="YOUR_HF_TOKEN")
-matches = retriever.search("A manager must decide whether to report a colleague.", k=5)
-```
-
-The token can instead be supplied through the `HF_TOKEN` environment variable;
-it is used for both the dataset and embedding-model downloads.
-
-For a single query, the convenience function `retrieve_similar_dilemmas(...)`
-is also available. From the command line:
-
-```bash
-python morebench_retrieve.py --dilemma "A manager must decide..." -k 5 --hf-token YOUR_HF_TOKEN
-```
-
-### Generation Scripts
-
-#### `run_inferences_on_dilemmas.py`
-
-Generate responses on main dataset (500 neutral dilemmas).
-
-| Argument | Short | Required | Default | Description |
-|----------|-------|----------|---------|-------------|
-| `--api_provider` | `-ap` | ✅ | - | openai, anthropic, openrouter, togetherai, xai |
-| `--api_key` | `-ak` | ✅ | - | API key for the provider |
-| `--model` | `-m` | ✅ | - | Model identifier |
-| `--reasoning` | `-r` | ❌ | False | Enable thinking/reasoning mode |
-| `--budget_tokens` | `-b` | ❌ | 10000 | Token budget for reasoning |
-| `--reasoning_effort` | `-re` | ❌ | medium | minimal/low/medium/high |
-| `--seed` | `-s` | ❌ | 0 | Random seed |
-| `--num_parallel_request` | `-n` | ❌ | 100 | Concurrent requests |
-| `--input_file` | `-i` | ❌ | dataset_11092025.csv | Input CSV |
-| `--generations_dir` | `-g` | ❌ | generations | Output directory |
-| `--debug` | `-d` | ❌ | False | Test with 5 samples |
-
-#### `run_inferences_on_dilemmas_theory.py`
-
-Generate responses on theory dataset (150 framework-specific dilemmas).
-
-Same arguments as above, except:
-- Default `input_file`: dataset_16092025.csv
-- Default `generations_dir`: generations_theory
-- No `--seed` argument
-
-### Judgment Scripts
-
-#### `run_best_judge_on_responses.py`
-
-Evaluate responses using judge model (expects 500 samples × ~23 criteria = 11,568 judgements).
-
-| Argument | Short | Required | Default | Description |
-|----------|-------|----------|---------|-------------|
-| `--input_file` | `-i` | ✅ | - | Generated responses JSONL |
-| `--api_key` | `-ak` | ✅ | - | OpenRouter API key |
-| `--judgement_type` | `-jt` | ❌ | thinking_trace | model_resp or thinking_trace |
-| `--judge_model` | `-jm` | ❌ | openai/gpt-oss-120b | Judge model |
-| `--num_parallel_request` | `-n` | ❌ | 100 | Concurrent requests |
-| `--expected_samples` | `-es` | ❌ | 500 | Expected sample count |
-| `--output_dir` | `-o` | ❌ | auto | Custom output location |
-| `--debug` | `-d` | ❌ | False | Test with 10 samples |
-
-#### `run_best_judge_on_responses_theory.py`
-
-Evaluate theory dataset responses (expects 150 samples × ~25 criteria = 3,835 judgements).
-
-Same arguments as above, except default `num_parallel_request`: 160 and `expected_samples`: 150.
-
-### Calculation Scripts
-
-#### `calculate_morebench.py`
-
-Calculate benchmark scores from judgment data (main dataset).
-
-| Argument | Short | Required | Default | Description |
-|----------|-------|----------|---------|-------------|
-| `--input_file` | `-i` | ✅ | - | Judgement JSONL file |
-| `--format` | `-f` | ❌ | latex | latex or human |
-| `--expected_samples` | `-es` | ❌ | 11568 | Expected judgement count |
-
-**Scoring Logic:**
-- Each task has 6-10 weighted criteria
-- `max_score = sum(|weight|)` for all criteria
-- `achieved_score += weight` if criterion met (yes/no based on weight sign)
-- `task_score = 100 × achieved_score / max_score` (clamped to 0-100)
-- Final scores aggregated by category (dilemma source, role domain, etc.)
-
-**Output Fields (LaTeX format):**
-`daily_dilemmas & ai_risk & expert_case & short_case & long_case & ai_advisor & ai_agent & overall & length & normalized`
-
-#### `calculate_morebench_theory.py`
-
-Calculate benchmark scores from judgment data (theory dataset).
-
-Same arguments as `calculate_morebench.py`, except default `expected_samples`: 3835.
-
-**Output Fields (LaTeX format):**
-`Gauthierian_Contractarianism & Scanlonian_Contractualism & Act_Utilitarianism & Aristotelian_Virtue_Ethics & Kantian_Deontology & overall & length & normalized`
-
----
-
-## Output Files
-
-### Generation Phase
-
-**Format**: `{model}_reasoning_{effort}_seed_{seed}.jsonl`
-
-```jsonl
-{
-  "TASK_ID": "task_001",
-  "DILEMMA": "A doctor must choose...",
-  "RUBRIC": [...],
-  "model_resp": "After careful consideration...",
-  "thinking_trace": "Let me analyze this step by step...",
-  "input_tokens": 850,
-  "output_tokens": 450,
-  "reasoning_tokens": 3200,
-  "model": "gpt-4o",
-  "idx": 0
-}
-```
-
-### Judgment Phase
-
-**Format**: `{judgement_type}_judgements/{filename}` (`{judgement_type}_judgements_theory` for theory dataset)
-
-```jsonl
-{
-  "task_id": "task_001",
-  "criterion_id": "crit_1",
-  "criterion": "Thoroughness of analysis",
-  "response": "After careful consideration...",
-  "judgement": "yes",
-  "judge_input_tokens": 920,
-  "judge_output_tokens": 180,
-  "criterion_weight": 2,
-  "criterion_dimension": "thoroughness",
-  ...
-}
-```
-
-### Calculation Phase
-
-**Human format**: Detailed breakdown by category + summary
-**LaTeX format**: Single row for tables (values separated by `&`)
-
----
-
-## Understanding the Scores
-
-### Overall Score (0-100)
-The primary metric representing quality of moral reasoning across all criteria.
-
-
-### MoReBench-Easy (Raw Score)
-Score per 1,000 characters.
-
-### MoReBench-Hard (Normalized Score)
-Score per 1,000 characters (controls for response length bias).
-
----
-
-## Troubleshooting
-
-**Issue**: API rate limits  
-**Solution**: Reduce `-n` parameter: `-n 10`
-
-**Issue**: Inference script raises errors and cannot complete the whole file
-**Solution**: Rerun the script again. The script will start from what missing.
-
-
----
-
-## Citation
-
-```bibtex
-@misc{chiu2025morebenchevaluatingproceduralpluralistic,
-        title={MoReBench: Evaluating Procedural and Pluralistic Moral Reasoning in Language Models, More than Outcomes}, 
-        author={Yu Ying Chiu and Michael S. Lee and Rachel Calcott and Brandon Handoko and Paul de Font-Reaulx and Paula Rodriguez and Chen Bo Calvin Zhang and Ziwen Han and Udari Madhushani Sehwag and Yash Maurya and Christina Q Knight and Harry R. Lloyd and Florence Bacus and Mantas Mazeika and Bing Liu and Yejin Choi and Mitchell L Gordon and Sydney Levine},
-        year={2025},
-        eprint={2510.16380},
-        archivePrefix={arXiv},
-        primaryClass={cs.CL},
-        url={https://arxiv.org/abs/2510.16380}, 
-  }
-```
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
----
-
-
-**Questions?** Open an issue or contact [Yu Ying Chiu (Kelly Chiu)](mailto:kellycyy@uw.edu)
+1. Is a 50-case stratified sample from the public split a suitable scope for this course project?
+2. Are hosted model APIs available or permitted for response generation and judge evaluation, and is there a recommended cost budget or judge model?

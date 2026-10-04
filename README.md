@@ -27,42 +27,23 @@ The dataset is available through the [Hugging Face dataset page](https://hugging
 4. **Analyze.** Calculate MoreBench-Regular and MoreBench-Hard as defined in the paper. Compare each changed answer with its original and measure the change. 
 Check which individual criteria receive different judgments. Focus first on whether irrelevant padding changes the raw score, then examine how the length correction affects the result. Use the shorter and longer versions to study the wider relationship between length and score
 
-This measures evaluator robustness, not moral truth. Rewriting may change clarity or content despite instructions, and the judges are imperfect. Human checks and paired comparisons help limit those risks.
-
+The study tests how answer length affects benchmark scores
 ## Proposed timeline
 
-- **Week 1:** Confirm dataset access, API budget, and rubric parsing; load data and reproduce scoring on five pilot cases.
-- **Week 2:** Select the 50-case sample, finalize prompts and conditions, and freeze the analysis plan.
-- **Week 3:** Generate variants and complete the human consistency check.
-- **Week 4:** Run judging, calculate scores, and resolve pipeline issues.
-- **Week 5 / Milestone P2:** Complete paired analysis, figures, reproducibility checks, and the final project report.
+xxxx
 
 ## Organization within the team
 
-Tentative roles, to be combined if the team is small:
+xxxx
 
-- **Data and pipeline lead:** Load and version the public data; adapt the benchmark scoring scripts.
-- **Perturbation lead:** Generate concise, expanded, and padded responses; maintain condition metadata.
-- **Validation and analysis lead:** Coordinate human checks, scoring, statistical analysis, and plots.
-- **Writing and reproducibility lead:** Keep prompts, run instructions, and results organized; draft the report.
-
-Internal milestones through P2: (1) data and scoring pipeline runs on five cases; (2) sample and prompts are frozen; (3) all variants pass the consistency check; (4) judging and scoring are complete; (5) P2 analysis and report are ready.
-
----
 
 # Appendix
 
+xxxx
+
 ## Repo organisation
 
-- **README.md** — proposal, setup notes, and run instructions.
-- **data/** — dataset access notes and selected case IDs; do not commit API keys or duplicate the full dataset.
-- **prompts/** — frozen prompts for answer generation and transformations.
-- **src/** — data loading, variant validation, scoring, and analysis scripts.
-- **results/** — JSONL responses and judge outputs, with run metadata.
-- **figures/** — plots and tables used in the report.
-- **report/** — final write-up and references.
+xxxxx
 
 ## Questions for TAs
 
-1. Is a 50-case stratified sample from the public split a suitable scope for this course project?
-2. Are hosted model APIs available or permitted for response generation and judge evaluation, and is there a recommended cost budget or judge model?

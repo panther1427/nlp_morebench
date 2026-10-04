@@ -3,20 +3,19 @@
 
 ## Abstract
 
-MoreBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. The paper reports that longer answers can satisfy more criteria due to more text and introduces MoreBench-Hard, a length-corrected score, to fix this. This project tests whether that correction makes the adjusted score less sensitive to extra wording. We will start from a fixed set of model responses to public moral dilemmas, then create concise, expanded, and irrelevant-padding versions while keeping each response's moral position and core reasons stable. We will score versions with the benchmark's standard rubrics, compare raw and length-corrected scores, and compare different judges. Our goal is not to decide whether a model is morally good. We ask a narrower question: can surface length changes alter what the benchmark rewards? The project will measure the size and consistency of those changes, identify which rubric dimensions are most affected, and provide evidence about when MoreBench scores can be trusted as a comparison of reasoning quality.
+MoreBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. The paper reports that longer answers can satisfy more criteria due to more text and introduces MoreBench-Hard, a length-corrected score, to fix this. This project tests whether that correction makes the adjusted score less sensitive to extra wording. We will start from a fixed set of model responses to public moral dilemmas, then create concise, expanded, and irrelevant-padding versions while keeping each response's moral position and core reasons stable. We will score versions with the benchmark's standard rubrics, compare raw and length-corrected scores, and compare different judges. Our goal is not to decide whether a model is morally good but its if making an answer longer or shorter change its benchmark score, even when the moral position is the same? We will test how much scores change when answers become longer or shorter whether this happens across different dilemmas, and which parts of the rubric are most affectedy.
 
 ## Contributions
+- Test whether making answers longer or shorter changes MoreBench scores while keeping the moral position and main reasons the same.
+- Measure how irrelevant padding affects raw scores and how MoreBench-Hard’s length correction changes those results.
+- Compare results across dilemmas, rubric dimensions, and judges to see where score changes are largest and whether they follow a consistent pattern.
+- Provide the prompts, code, and evaluation steps so others can repeat the study.
 
-- A controlled test of whether response length changes MoreBench scores when the underlying position and main reasons are held constant.
-- An empirical assessment of whether MoreBench-Hard reduces score changes from verbosity and whether irrelevant padding affects scores.
-- A dimension-level and judge-level analysis that can show where the benchmark is most sensitive.
-- A small, reproducible evaluation protocol that other researchers can reuse to test length sensitivity in rubric-based benchmarks.
-
-The novelty is the controlled perturbation and evaluation of the benchmark's existing length correction, rather than proposing a new moral-reasoning model.
+Our contribution is a controlled study of how answer length affects MoreBench scores, including its existing length correction.
 
 ## Proposed additional datasets
 
-No additional dataset is planned. We will use the theory-neutral public MoReBench split. The [paper](https://arxiv.org/abs/2510.16380) describes 1,000 scenarios overall and reserves 500 as the public evaluation set, with the remainder held private. We will use only public scenarios and draw our own stratified evaluation sample within that set.
+We plan on only using the MoReBench dataset. We will use the theory-neutral public MoReBench split. The [paper](https://arxiv.org/abs/2510.16380) describes 1,000 scenarios overall and reserves 500 as the public evaluation set, with the remainder being private. We will use only public scenarios.
 
 The dataset is available through the [Hugging Face dataset page](https://huggingface.co/datasets/morebench/morebench). Its CSV rows include the dilemma text, source and type, theory, role, context, and a RUBRIC field containing expert-written criteria. Criteria include a title, weight, and rubric dimension. The repository's inference scripts load the CSV through Hugging Face Datasets and write model outputs to JSONL; its README documents separate response-generation, judging, and score-calculation steps ([code and usage](https://github.com/morebench/morebench)). We will inspect the current data card and repository examples before fixing the loader, then record the dataset version and selected row IDs. We expect about 500 public cases, each with roughly 20–49 criteria. For cost control, we plan to sample 50 cases, stratified by role and context. At the paper’s mean of 23 criteria per case, four conditions across 50 cases produce about 4,600 criterion-response decisions per judge; the second judge will cover a smaller subset. We will preserve the source data unchanged and store generated variants in JSONL with case ID, condition, response text, character count, and prompt/model metadata. API keys will stay outside the repository.
 

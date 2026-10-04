@@ -3,7 +3,7 @@
 
 ## Abstract
 
-MoreBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. The paper reports that longer answers can satisfy more criteria due to more text and introduces MoreBench-Hard, a length-corrected score, to fix this. This project tests whether that correction makes the adjusted score less sensitive to extra wording. We will start from a fixed set of model responses to public moral dilemmas, then create concise, expanded, and irrelevant-padding versions while keeping each response's moral position and core reasons stable. We will score versions with the benchmark's standard rubrics, compare raw and length-corrected scores, and compare different judges. Our goal is not to decide whether a model is morally good but its if making an answer longer or shorter change its benchmark score, even when the moral position is the same? We will test how much scores change when answers become longer or shorter whether this happens across different dilemmas, and which parts of the rubric are most affectedy.
+MoreBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. The paper reports that longer answers can satisfy more criteria due to more text and introduces MoreBench-Hard, a length-corrected score to fix this. This project tests whether that correction makes the adjusted score less sensitive to extra wording. We will start from a fixed set of model responses to public moral dilemmas, then create concise, expanded, and irrelevant-padding versions while keeping each response's moral position and core reasons stable. We will score versions with the benchmark's standard rubrics, compare raw and length-corrected scores, and compare different judges. Our goal is not to decide whether a model is morally good but its if making an answer longer or shorter change its benchmark score, even when the moral position is the same? We will test how much scores change when answers become longer or shorter whether this happens across different dilemmas, and which parts of the rubric are most affectedy.
 
 ## Contributions
 - Test whether making answers longer or shorter changes MoreBench scores while keeping the moral position and main reasons the same.
@@ -27,7 +27,7 @@ The dataset is available through the [Hugging Face dataset page](https://hugging
 4. **Analyze.** Calculate MoreBench-Regular and MoreBench-Hard as defined in the paper. Compare each changed answer with its original and measure the change. 
 Check which individual criteria receive different judgments. Focus first on whether irrelevant padding changes the raw score, then examine how the length correction affects the result. Use the shorter and longer versions to study the wider relationship between length and score
 
-The study tests how answer length affects benchmark scores
+The study tests how answer length affects benchmark scores.
 ## Proposed timeline
 
 xxxx

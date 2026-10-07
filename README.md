@@ -43,7 +43,9 @@ xxxx
 
 ## Repo organisation
 
-xxxxx
-
+The repo is linked here
+https://github.com/panther1427/nlp_morebench
 ## Questions for TAs
+
+We have no questions at the moment
 

@@ -2,12 +2,12 @@
 ## A Controlled Study Using MoReBench
 ## Abstract
 
-MoReBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. This project tests whether retrieving information from other moral dilemmas helps a LLM identify relevant considerations in a new dilemma. We will use the 500 public, theory-neutral MoReBench cases and divide them into retrieval, development, and test sets. Using SBERT embeddings, we will retrieve the three most similar and three least similar dilemmas from the retrieval set. We will compare direct answers with answers supported by random examples, similar dilemma texts, and expert criteria from similar, dissimilar, or mixed examples. The model will never receive the rubric belonging to the dilemma it is answering, as this will have look ahead bias. We will evaluate responses using the benchmarks existing judging and scoring pipeline, focusing on the Identifying dimension alongside overall performance. Our goal is to test whether useful moral considerations transfer between dilemmas, and whether similarity and/or diversity makes retrieved information helpful in practice.
+MoReBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. This project tests whether retrieving information from other moral dilemmas helps a LLM identify relevant considerations in a new dilemma. We will use the 500 public MoReBench cases and divide them into retrieval and test sets. Using SBERT embeddings, we will retrieve the three most similar, three least similar, and a mix of dilemmas from the retrieval set. We will compare direct answers with answers supported by random examples and dilemma texts from similar, dissimilar, or mixed examples. The model will never receive the expert criteria belonging to the dilemma it is answering, as this will lead to look-ahead bias. We will evaluate responses using the benchmarks existing judging and scoring pipeline, where we will compare the MoReBench-Regular and  MoReBench-Hard benchmark. Our goal is to test whether useful moral considerations transfer between dilemmas, and whether similarity and/or diversity makes retrieved information helpful in practice.
 
 ## Contributions
 
 - Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard, especially in the Identifying dimension.
-- Compare the three most similar and three least similar dilemmas and expert scoring to study whether similarity, diversity or a mix provides more useful guidance.
+- Compare the three most similar, three least similar and a  mix of these dilemmas to study whether similarity, diversity or mix provides more useful guidance.
 - Provide the data splits, prompts, retrieval code, and evaluation steps so others can repeat the study.
 
 Our contribution is a controlled comparison of retrieval methods for moral reasoning using MoReBench.
@@ -18,15 +18,15 @@ We plan to use only MoReBench. The [paper](https://arxiv.org/abs/2510.16380) des
 
 The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome. For example, a search-and-rescue dilemma could include a criterion about recognizing the importance of saving lives regardless of the rescue method.
 
-We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set serves as a knowledge source, where both the dilemma and the expert criterion will be given; we will not train the response model, only run inference. We will then give the 3 or 6 dilemmas and expert criterion, but only the dilemma from the test set. We will keep the source data unchanged and save split IDs, embeddings, retrieved examples, prompts, responses, and judgments separately. Responses and judgments will use JSONL.
+We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set serves as a knowledge source, where both the dilemma and the expert criterion will be given. We will not train the response model, only run inference. We will then give the 3 or 6 dilemmas and expert criterion, but only the dilemma from the test set. We will keep the source data unchanged and save split IDs, embeddings, retrieved examples, prompts, responses, and judgments separately. Responses and judgments will use JSONL.
 
 ## Methods
 
-1. **Load and prepare cases.** Load the public dataset, parse the expert criterion, and check for duplicates and related scenario versions before splitting. Keep development and test expert criterion separate from the retrieval index and response-generation code.
+1. **Load and prepare cases.** Load the public dataset, parse the expert criterion, and check for duplicates before splitting. Keep development and test expert criterion separate from the retrieval index and response-generation code.
 
-2. **Build the retrieval system.** Use a pretrained Sentence-BERT model to embed dilemma texts and rank retrieval-set cases by cosine similarity. Select the three highest-scoring, three lowest-scoring cases or a mix. “Least similar” means lowest embedding similarity, which may differ from moral similarity. Manually inspect development examples to check what the rankings capture.
+2. **Build the retrieval system.** Use a pretrained SBERT model to embed dilemma texts and rank retrieval-set cases by cosine similarity. Select the three highest-scoring, three lowest-scoring cases or a mix. “Least similar” means lowest embedding similarity, which may differ from moral similarity. We will manually inspect a few development examples to check what the rankings capture.
 
-3. **Compare answer conditions.** Generate one final response per dilemma under six conditions:
+3. **Compare answer conditions.** Generate one final response per dilemma under five conditions:
    - **Direct:** the dilemma without retrieved information.
    - **Random rubric RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
    - **Similar dilemma RAG:** texts of the three most similar dilemmas.

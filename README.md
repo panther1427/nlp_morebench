@@ -7,7 +7,7 @@ MoReBench evaluates moral reasoning by checking model responses against expert-w
 ## Contributions
 
 - Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard.
-- Compare different retrieval methods: 1
+- Compare different retrieval methods
 - Provide the data splits, prompts, retrieval code, and evaluation steps so others can repeat the study.
 
 Our contribution is a controlled comparison of retrieval methods for moral reasoning using MoReBench.
@@ -18,7 +18,7 @@ We plan to use only MoReBench. The [paper](https://arxiv.org/abs/2510.16380) des
 
 The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome. For example, a search-and-rescue dilemma could include a criterion about recognizing the importance of saving lives regardless of the rescue method.
 
-We will target a 400/100 split for retrieval and testing, using a fixed seed. he retrieval set provides dilemma texts and their expert criteria as additional context. We will not train the response model, only run inference. Depending on the condition, the model will receive retrieved dilemmas and their criteria, alongside the test dilemma text. The test dilemma’s criteria will remain separate for evaluation.
+We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set provides dilemma texts and their expert criteria as additional context. We will not train the response model, only run inference. Depending on the condition, the model will receive retrieved dilemmas and their criteria, alongside the test dilemma text. The test dilemma’s criteria will remain separate for evaluation.
 
 ## Methods
 

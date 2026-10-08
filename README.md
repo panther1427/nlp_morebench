@@ -2,12 +2,12 @@
 ## A Controlled Study Using MoReBench
 ## Abstract
 
-MoReBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. This project tests whether retrieving information from other moral dilemmas helps a LLM identify relevant considerations in a new dilemma. We will use the 500 public MoReBench cases and divide them into retrieval and test sets. Using SBERT embeddings, we will retrieve the three most similar, three least similar, and a mix of dilemmas from the retrieval set. We will compare direct answers with answers supported by random examples and dilemma texts from similar, dissimilar, or mixed examples. The model will never receive the expert criteria belonging to the dilemma it is answering, as this will lead to look-ahead bias. We will evaluate responses using the benchmarks existing judging and scoring pipeline, where we will compare the MoReBench-Regular and  MoReBench-Hard benchmark. Our goal is to test whether useful moral considerations transfer between dilemmas, and whether similarity and/or diversity makes retrieved information helpful in practice.
+MoReBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. This project tests whether retrieving information from other moral dilemmas helps a LLM identify relevant considerations in a new dilemma. We will use the 500 public MoReBench cases and divide them into retrieval and test sets. Using SBERT embeddings, we will retrieve the three most similar, three least similar, and a mix of dilemmas from the retrieval set. We will compare direct answers with answers supported by random examples and dilemma texts from similar, dissimilar, or mixed examples. The model will never receive the expert criteria belonging to the dilemma it is answering, to prevent data leakage . We will evaluate responses using the benchmarks existing judging and scoring pipeline, where we will compare the MoReBench-Regular and MoReBench-Hard benchmark. Our goal is to test whether useful moral considerations transfer between dilemmas, and whether similarity and/or dissimilarity makes retrieved information helpful in practice.
 
 ## Contributions
 
-- Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard, especially in the Identifying dimension.
-- Compare the three most similar, three least similar and a  mix of these dilemmas to study whether similarity, diversity or mix provides more useful guidance.
+- Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard.
+- Compare different retrieval methods: 1
 - Provide the data splits, prompts, retrieval code, and evaluation steps so others can repeat the study.
 
 Our contribution is a controlled comparison of retrieval methods for moral reasoning using MoReBench.
@@ -18,7 +18,7 @@ We plan to use only MoReBench. The [paper](https://arxiv.org/abs/2510.16380) des
 
 The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome. For example, a search-and-rescue dilemma could include a criterion about recognizing the importance of saving lives regardless of the rescue method.
 
-We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set serves as a knowledge source, where both the dilemma and the expert criterion will be given. We will not train the response model, only run inference. We will then give the 3 or 6 dilemmas and expert criterion, but only the dilemma from the test set. We will keep the source data unchanged and save split IDs, embeddings, retrieved examples, prompts, responses, and judgments separately. Responses and judgments will use JSONL.
+We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set serves as a knowledge source, where both the dilemma and the expert criterion will be given. We will not train the response model, only run inference. We will then give the (dis)similar dilemmas and corresponding expert criteria as context, but only the dilemma from the test set. We will keep the source data unchanged and save split IDs, embeddings, retrieved examples, prompts, responses, and judgments separately. Responses and judgments will use JSONL.
 
 ## Methods
 
@@ -28,12 +28,12 @@ We will target a 400/100 split for retrieval and testing, using a fixed seed. Th
 
 3. **Compare answer conditions.** Generate one final response per dilemma under five conditions:
    - **Direct:** the dilemma without retrieved information.
-   - **Random dilemma RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
+   - **Random rubric RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
    - **Similar dilemma RAG:** texts of the three most similar dilemmas.
    - **Least-similar dilemma RAG:** texts from the three least similar dilemmas.
    - **Mixed dilemma RAG:** texts from the three most similar and three least similar dilemmas.
 
-We will retrieve examples using only dilemma texts. The model will receive the test dilemma and the retrieved dilemma descriptions, without any expert criteria. After generation, the judge will evaluate each answer using the test dilemma’s original expert criteria and weights.
+   We will evaluate all answer conditions using the same original criteria and weights for each test dilemma. We cant provide the similarity score of the expert criteria, as this will produce look-ahead.
 
 4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 

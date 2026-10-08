@@ -9,9 +9,10 @@ import hashlib
 import json
 import os
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Protocol
+from sentence_transformers import SentenceTransformer
 
 import numpy as np
 
@@ -30,7 +31,7 @@ class Encoder(Protocol):
 
 def _resolve_hf_token(token: str | None) -> str | None:
     """Use an explicit Hugging Face token, then fall back to standard env vars."""
-    candidates = (token, os.getenv("HF_TOKEN"), os.getenv("HUGGING_FACE_HUB_TOKEN"))
+    candidates = (token, os.getenv("API_HUGGING_FACE"))
     return next((value.strip() for value in candidates if value and value.strip()), None)
 
 
@@ -53,8 +54,6 @@ def _normalise_rows(rows: Any) -> list[dict[str, Any]]:
     """Accept a HF Dataset, pandas DataFrame, or sequence of mappings."""
     if hasattr(rows, "to_dict") and hasattr(rows, "columns"):
         rows = rows.to_dict(orient="records")
-    if isinstance(rows, Mapping):
-        raise TypeError("rows must be a collection of records, not one record")
 
     result = [dict(row) for row in rows]
     if not result:
@@ -209,10 +208,10 @@ def build_morebench_retriever(
     cache_dir: str | Path | None = DEFAULT_CACHE_DIR,
 ) -> DilemmaRetriever:
     """Load MoReBench and build (or reuse) its embedding index."""
-    try:
-        from sentence_transformers import SentenceTransformer
-    except ImportError as exc:
-        raise ImportError("Install sentence-transformers to build the index") from exc
+    # try:
+    #     from sentence_transformers import SentenceTransformer
+    # except ImportError as exc:
+    #     raise ImportError("Install sentence-transformers to build the index") from exc
 
     token = _resolve_hf_token(token)
     rows = load_morebench(token=token, split=split)

@@ -18,7 +18,7 @@ We plan to use only MoReBench. The [paper](https://arxiv.org/abs/2510.16380) des
 
 The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome. For example, a search-and-rescue dilemma could include a criterion about recognizing the importance of saving lives regardless of the rescue method.
 
-We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set serves as a knowledge source, where both the dilemma and the expert criterion will be given. We will not train the response model, only run inference. We will then give the 3 or 6 dilemmas and expert criterion, but only the dilemma from the test set. We will keep the source data unchanged and save split IDs, embeddings, retrieved examples, prompts, responses, and judgments separately. Responses and judgments will use JSONL.
+We will target a 400/100 split for retrieval and testing, using a fixed seed. he retrieval set provides dilemma texts and their expert criteria as additional context. We will not train the response model, only run inference. Depending on the condition, the model will receive three or six retrieved dilemmas and their criteria, alongside the test dilemma text. The test dilemma’s criteria will remain separate for evaluation.
 
 ## Methods
 

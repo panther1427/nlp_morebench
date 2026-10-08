@@ -7,7 +7,7 @@ MoReBench evaluates moral reasoning by checking model responses against expert-w
 ## Contributions
 
 - Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard.
-- Compare different retrieval methods
+- Compare the three most similar, three least similar and a  mix of these dilemmas to study whether similarity, diversity or mix provides more useful guidance.
 - Provide the data splits, prompts, retrieval code, and evaluation steps so others can repeat the study.
 
 Our contribution is a controlled comparison of retrieval methods for moral reasoning using MoReBench.
@@ -35,11 +35,11 @@ We will target a 400/100 split for retrieval and testing, using a fixed seed. Th
 
 We will select retrieved examples using only dilemma-text embeddings. After selection, we will include their dilemma descriptions and expert criteria in the prompt. The test dilemmas expert criteria will never be used for retrieval or response generation. After generation, the judge will evaluate every answer using the test dilemma’s complete original criteria and weights.
 
-4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
+4. **Tune and judge.** Use retrieval cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 
 5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves  scores over direct and random conditions, and whether dissimilar examples help or distract.
 
-With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 13,800 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
+With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 11500 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
 
 ## Proposed timeline
 

@@ -1,51 +1,94 @@
-# Can MoreBench Be Gamed by Verbosity?
-## A Controlled Robustness Study
-
+# Can Retrieval Help Models Identify Moral Considerations?
+## A Controlled Study Using MoReBench
 ## Abstract
 
-MoreBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. The paper reports that longer answers can satisfy more criteria due to more text and introduces MoreBench-Hard, a length-corrected score to fix this. This project tests whether that correction makes the adjusted score less sensitive to extra wording. We will start from a fixed set of model responses to public moral dilemmas, then create concise, expanded, and irrelevant-padding versions while keeping each response's moral position and core reasons stable. We will score versions with the benchmark's standard rubrics, compare raw and length-corrected scores, and compare different judges. Our goal is not to decide whether a model is morally good but its if making an answer longer or shorter change its benchmark score, even when the moral position is the same? We will test how much scores change when answers become longer or shorter whether this happens across different dilemmas, and which parts of the rubric are most affectedy.
+MoReBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. This project tests whether retrieving information from other moral dilemmas helps a LLM identify relevant considerations in a new dilemma. We will use the 500 public, theory-neutral MoReBench cases and divide them into retrieval, development, and test sets. Using SBERT embeddings, we will retrieve the three most similar and three least similar dilemmas from the retrieval set. We will compare direct answers with answers supported by random examples, similar dilemma texts, and expert criteria from similar, dissimilar, or mixed examples. The model will never receive the rubric belonging to the dilemma it is answering, as this will have look ahead bias. We will evaluate responses using the benchmarks existing judging and scoring pipeline, focusing on the Identifying dimension alongside overall performance. Our goal is to test whether useful moral considerations transfer between dilemmas, and whether similarity and/or diversity makes retrieved information helpful in practice.
 
 ## Contributions
-- Test whether making answers longer or shorter changes MoreBench scores while keeping the moral position and main reasons the same.
-- Measure how irrelevant padding affects raw scores and how MoreBench-Hard’s length correction changes those results.
-- Compare results across dilemmas, rubric dimensions, and judges to see where score changes are largest and whether they follow a consistent pattern.
-- Provide the prompts, code, and evaluation steps so others can repeat the study.
 
-Our contribution is a controlled study of how answer length affects MoreBench scores, including its existing length correction.
+- Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard, especially in the Identifying dimension.
+- Compare the three most similar and three least similar dilemmas and expert scoring to study whether similarity, diversity or a mix provides more useful guidance.
+- Provide the data splits, prompts, retrieval code, and evaluation steps so others can repeat the study.
+
+Our contribution is a controlled comparison of retrieval methods for moral reasoning using MoReBench.
 
 ## Proposed additional datasets
 
-We plan on only using the MoReBench dataset. We will use the theory-neutral public MoReBench split. The [paper](https://arxiv.org/abs/2510.16380) describes 1,000 scenarios overall and reserves 500 as the public evaluation set, with the remainder being private. We will use only public scenarios.
+We plan to use only MoReBench. The [paper](https://arxiv.org/abs/2510.16380) describes 1,000 scenarios overall, with 500 public scenarios and 500 reserved for private evaluation. We will use the public set from the [Hugging Face dataset page](https://huggingface.co/datasets/morebench/morebench).
 
-The dataset is available through the [Hugging Face dataset page](https://huggingface.co/datasets/morebench/morebench). Its rows include the dilemma text, source and type, theory, role, context, and a RUBRIC field containing expert-written criteria. Criteria include a title, weight, and category. The repository's inference scripts load the CSV through Hugging Face Datasets and write model outputs to JSONL; its README documents separate response-generation, judging, and score-calculation steps ([code and usage](https://github.com/morebench/morebench)). We will use the existing code to load the public dataset and check that it works as intended. We will use all 500 public cases, each with roughly 20–49 criteria for scoring answers. For each case, we intend to create four answer versions, original, concise, expanded, and padded with irrelevant text. As we have on average of 23 criteria per case, each judge will either make a yes or a no descision. It will come out to a total of 46.000 decisions in total.  We will keep the original dataset unchanged and save the answer versions in JSONL, with one record per line. We intend that record will include the case ID, answer version, answer text, character count, and details of the prompt and model used.
+The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome. For example, a search-and-rescue dilemma could include a criterion about recognizing the importance of saving lives regardless of the rescue method.
+
+We will target a 400/100 split for retrieval and testing, using a fixed seed. The retrieval set serves as a knowledge source, where both the dilemma and the expert criterion will be given; we will not train the response model, only run inference. We will then give the 3 or 6 dilemmas and expert criterion, but only the dilemma from the test set. We will keep the source data unchanged and save split IDs, embeddings, retrieved examples, prompts, responses, and judgments separately. Responses and judgments will use JSONL.
 
 ## Methods
 
-1. **Load cases and generate answers.** Use the existing code to load all 500 public theory-neutral cases. Generate one final answer per case using the same model and prompt settings. Save these original answers as the starting point for all versions.
-2. **Create answer versions.** For each original answer, create a shorter version, a longer version explaining the same reasons in more words, and a padded version with extra text unrelated to the moral dilemma. Keep the moral position and main reasons the same, OBS VI SKAL OGSÅ SIGE VI SKAL BRUGE BERTSCORE. Save the prompts and character counts. 
-3. **Judge and score.** We have not yet decided which judge model to use. We will choose one based on access, cost, and results from a small test run. Use the benchmark’s existing evaluation code to score every answer against the same criteria for its case, using the same judge settings. Shuffle the answer order and hide the version labels from the judge, so there is no bias in the results
-4. **Analyze.** Calculate MoreBench-Regular and MoreBench-Hard as defined in the paper. Compare each changed answer with its original and measure the change. 
-Check which individual criteria receive different judgments. Focus first on whether irrelevant padding changes the raw score, then examine how the length correction affects the result. Use the shorter and longer versions to study the wider relationship between length and score
+1. **Load and prepare cases.** Load the public dataset, parse the expert criterion, and check for duplicates and related scenario versions before splitting. Keep development and test expert criterion separate from the retrieval index and response-generation code.
 
-The study tests how answer length affects benchmark scores.
+2. **Build the retrieval system.** Use a pretrained Sentence-BERT model to embed dilemma texts and rank retrieval-set cases by cosine similarity. Select the three highest-scoring, three lowest-scoring cases or a mix. “Least similar” means lowest embedding similarity, which may differ from moral similarity. Manually inspect development examples to check what the rankings capture.
+
+3. **Compare answer conditions.** Generate one final response per dilemma under six conditions:
+   - **Direct:** the dilemma without retrieved information.
+   - **Random rubric RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
+   - **Similar dilemma RAG:** texts of the three most similar dilemmas.
+   - **Least-similar dilemma RAG:** texts from the three least similar dilemmas.
+   - **Mixed dilemma RAG:** texts from the three most similar and three least similar dilemmas.
+
+   We will evaluate all answer conditions using the same original criteria and weights for each test dilemma. We cant provide the similarity score of the expert criteria, as this will produce look-ahead.
+
+4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
+
+5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves Identifying scores over direct and random conditions, whether criteria help more than dilemma texts, and whether dissimilar examples help or distract.
+
+With 100 test cases and 5 answer conditions, the main experiment produces 600 responses. At roughly 23 criteria per case, this means about 13,800 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
+
 ## Proposed timeline
 
-xxxx
+- **Week 1:** Load the dataset, inspect examples, check related cases, and create the splits.
+- **Week 2:** Build retrieval and prompts; run a small development pilot to check quality, runtime, and cost.
+- **Week 3:** Finalize settings and run generation and judging.
+- **Week 4:** Analyze results, review examples, and prepare the P2 submission.
+
+This tentative schedule will be adjusted to the course’s P2 deadline.
 
 ## Organization within the team
 
-xxxx
+We will divide responsibilities across data preparation, retrieval, generation and evaluation, and analysis. Names will be assigned within the team, and each part will be reviewed by another member.
 
+Tentative internal milestones before P2:
+
+- **M1:** Data splits and duplicate checks completed.
+- **M2:** All six conditions working on development cases.
+- **M3:** Pilot reviewed; prompts, settings, and budget finalized.
+- **M4:** Test responses and judgments completed.
+- **M5:** Results checked and P2 material prepared together.
 
 # Appendix
 
-xxxx
-
 ## Repo organisation
 
-The repo is linked here
-https://github.com/panther1427/nlp_morebench
+Our repository is [nlp_morebench](https://github.com/panther1427/nlp_morebench).
+
+Planned structure:
+
+- `README.md`: project proposal and setup instructions.
+- `data/`: dataset preparation notes and split IDs.
+- `src/`: preparation, embedding, retrieval, generation, judging, and analysis code.
+- `prompts/`: prompts for all answer conditions.
+- `configs/`: model settings, seeds, and experiment settings.
+- `outputs/`: retrieved examples, responses, judgments, and scores.
+- `results/`: tables, figures, and selected examples.
+- `requirements.txt`: project dependencies.
+
+API keys will be kept outside the repository.
+
 ## Questions for TAs
 
-We have no questions at the moment
+We have no questions at the moment.
+
+## References
+
+- [MoReBench paper](https://arxiv.org/abs/2510.16380)
+- [MoReBench dataset](https://huggingface.co/datasets/morebench/morebench)
+- [MoReBench code and README](https://github.com/morebench/morebench)
+- [Sentence Transformers similarity documentation](https://www.sbert.net/docs/sentence_transformer/usage/semantic_textual_similarity.html)
 

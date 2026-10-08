@@ -28,12 +28,12 @@ We will target a 400/100 split for retrieval and testing, using a fixed seed. Th
 
 3. **Compare answer conditions.** Generate one final response per dilemma under five conditions:
    - **Direct:** the dilemma without retrieved information.
-   - **Random rubric RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
+   - **Random dilemma RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
    - **Similar dilemma RAG:** texts of the three most similar dilemmas.
    - **Least-similar dilemma RAG:** texts from the three least similar dilemmas.
    - **Mixed dilemma RAG:** texts from the three most similar and three least similar dilemmas.
 
-   We will evaluate all answer conditions using the same original criteria and weights for each test dilemma. We cant provide the similarity score of the expert criteria, as this will produce look-ahead.
+We will retrieve examples using only dilemma texts. The model will receive the test dilemma and the retrieved dilemma descriptions, without any expert criteria. After generation, the judge will evaluate each answer using the test dilemma’s original expert criteria and weights.
 
 4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 

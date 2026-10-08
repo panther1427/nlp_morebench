@@ -1,0 +1,7 @@
+schema: "classroom50/repo-config/v1"
+classroom: "nlp-2026"
+assignment: "project"
+owner:
+  username: "lucasbr14"
+  id: 339610163
+  accepted_at: "2026-10-08T12:49:38Z"

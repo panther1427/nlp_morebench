@@ -7,7 +7,7 @@ MoReBench evaluates moral reasoning by checking model responses against expert-w
 ## Contributions
 
 - Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard.
-- Compare different retrieval methods: 1
+- Compare the three most similar, three least similar and a  mix of these dilemmas to study whether similarity, diversity or mix provides more useful guidance.
 - Provide the data splits, prompts, retrieval code, and evaluation steps so others can repeat the study.
 
 Our contribution is a controlled comparison of retrieval methods for moral reasoning using MoReBench.

@@ -27,19 +27,19 @@ We will target a 400/100 split for retrieval and testing, using a fixed seed. he
 2. **Build the retrieval system.** Use a pretrained SBERT model to embed dilemma texts and rank retrieval-set cases by cosine similarity. Select the three highest-scoring, three lowest-scoring cases or a mix. “Least similar” means lowest embedding similarity, which may differ from moral similarity. We will manually inspect a few development examples to check what the rankings capture.
 
 3. **Compare answer conditions.** Generate one final response per dilemma under five conditions:
-   - **Direct:** the dilemma without retrieved information.
-   - **Random dilemma RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as the baseline.
+   - **Direct:** the dilemma without retrieved information, serves as baseline.
+   - **Random dilemma RAG:** criteria from three randomly selected retrieval-set dilemmas. Will serve as control.
    - **Similar dilemma RAG:** texts of the three most similar dilemmas.
    - **Least-similar dilemma RAG:** texts from the three least similar dilemmas.
    - **Mixed dilemma RAG:** texts from the three most similar and three least similar dilemmas.
 
-We will retrieve examples using only dilemma texts. The model will receive the test dilemma and the retrieved dilemma descriptions, without any expert criteria. After generation, the judge will evaluate each answer using the test dilemma’s original expert criteria and weights.
+We will select retrieved examples using only dilemma-text embeddings. After selection, we will include their dilemma descriptions and expert criteria in the prompt. The test dilemmas expert criteria will never be used for retrieval or response generation. After generation, the judge will evaluate every answer using the test dilemma’s complete original criteria and weights.
 
 4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 
 5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves  scores over direct and random conditions, and whether dissimilar examples help or distract.
 
-With 100 test cases and 5 answer conditions, the main experiment produces 600 responses. At roughly 23 criteria per case, this means about 13,800 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
+With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 13,800 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
 
 ## Proposed timeline
 

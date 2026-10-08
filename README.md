@@ -39,7 +39,7 @@ We will select retrieved examples using only dilemma-text embeddings. After sele
 
 5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves  scores over direct and random conditions, and whether dissimilar examples help or distract.
 
-With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 13,800 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
+With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 11500 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
 
 ## Proposed timeline
 

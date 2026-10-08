@@ -35,7 +35,7 @@ We will target a 400/100 split for retrieval and testing, using a fixed seed. he
 
 We will select retrieved examples using only dilemma-text embeddings. After selection, we will include their dilemma descriptions and expert criteria in the prompt. The test dilemmas expert criteria will never be used for retrieval or response generation. After generation, the judge will evaluate every answer using the test dilemma’s complete original criteria and weights.
 
-4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
+4. **Tune and judge.** Use retrieval cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 
 5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves  scores over direct and random conditions, and whether dissimilar examples help or distract.
 

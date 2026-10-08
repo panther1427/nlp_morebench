@@ -37,7 +37,7 @@ We will target a 400/100 split for retrieval and testing, using a fixed seed. Th
 
 4. **Tune and judge.** Use test cases to choose the embedding model, criteria limit, and prompts. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 
-5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves Identifying scores over direct and random conditions, whether criteria help more than dilemma texts, and whether dissimilar examples help or distract.
+5. **Analyze.** Report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences and bootstrap confidence intervals. Focus on whether relevant retrieval improves  scores over direct and random conditions, and whether dissimilar examples help or distract.
 
 With 100 test cases and 5 answer conditions, the main experiment produces 600 responses. At roughly 23 criteria per case, this means about 13,800 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during the pilot.
 

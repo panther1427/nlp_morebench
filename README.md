@@ -21,7 +21,7 @@ Our contribution is a controlled comparison of retrieval methods for moral reaso
 
 We plan to use only MoReBench. The [paper](https://arxiv.org/abs/2510.16380) describes 1,000 scenarios overall, with 500 public scenarios and 500 reserved for private evaluation. We will use the public set from the [Hugging Face dataset page](https://huggingface.co/datasets/morebench/morebench).
 
-The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome. For example, a search-and-rescue dilemma could include a criterion about recognizing the importance of saving lives regardless of the rescue method.
+The public dataset is available as CSV. Its fields include `DILEMMA`, `DILEMMA_SOURCE`, `DILEMMA_TYPE`, `THEORY`, `ROLE_DOMAIN`, `CONTEXT`, and `RUBRIC`. Each rubric contains criterion titles, weights, and dimension labels. The five dimensions are Identifying, Logical Process, Clear Process, Helpful Outcome, and Harmless Outcome.
 
 We will target a 400/100 split for retrieval/development and testing, using a fixed seed. The retrieval set provides dilemma texts and their expert criteria as additional context. We will not train the response model, only run inference. Depending on the condition, the model will receive retrieved dilemmas and their criteria, alongside the test dilemma text. The test dilemma’s criteria will remain separate for evaluation.
 
@@ -42,8 +42,6 @@ We will select retrieved examples using only dilemma-text embeddings. After sele
 Then for tuning and judging we will use retrieval cases to choose the embedding model. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 
 We will then report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences. Focus on whether relevant retrieval improves scores over direct and random conditions, and whether dissimilar examples help or distract.
-
-With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 11500 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during development.
 
 ## Proposed timeline
 

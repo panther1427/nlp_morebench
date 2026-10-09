@@ -4,12 +4,12 @@
 
 MoReBench evaluates moral reasoning by checking model responses against expert-written rubric criteria. This project tests whether retrieving information from other moral dilemmas helps a LLM identify relevant considerations in a new dilemma. We will use the 500 public MoReBench cases and divide them into retrieval and test sets. Using SBERT embeddings, we will retrieve the three most similar, three least similar, and a mix of dilemmas from the retrieval set. We will compare direct answers with answers supported by random examples and dilemma texts from similar, dissimilar, or mixed examples. The model will never receive the expert criteria belonging to the dilemma it is answering, to prevent data leakage . We will evaluate responses using the benchmarks existing judging and scoring pipeline, where we will compare the MoReBench-Regular and MoReBench-Hard benchmark. Our goal is to test whether useful moral considerations transfer between dilemmas, and whether similarity and/or dissimilarity makes retrieved information helpful in practice.
 
+
+## Contributions
+
 Our research primarily seeks to answer the following question:
 
 _To what extent does providing an LLM with dilemmas and expert criteria retrieved from other MoReBench cases improve its ability to morally reason in unseen dilemmas, and how does the retrieval strategy affect this improvement?_
-
-
-## Contributions
 
 - Test whether retrieval from other dilemmas improves MoReBench scores, including MoReBench-Hard.
 - Compare different retrieval strategies including: The three most similar, three least similar and a mix of these dilemmas to study whether similarity, diversity or mix provides more useful guidance.

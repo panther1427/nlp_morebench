@@ -41,7 +41,7 @@ We will select retrieved examples using only dilemma-text embeddings. After sele
 
 Then for tuning and judging we will use retrieval cases to choose the embedding model. Choose a LLM judge based on access, cost, and a small pilot. We aim to use Deepseek 4.1 Flash. Adapt the [existing evaluation code](https://github.com/morebench/morebench) to our splits and answer conditions. Freeze settings before testing. Score each response against its own dilemma’s rubric.
 
-We wikll then report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences. Focus on whether relevant retrieval improves scores over direct and random conditions, and whether dissimilar examples help or distract.
+We will then report MoReBench-Regular and MoReBench-Hard as defined in the paper, answer lengths, and results across all five rubric dimensions/subjects. Compare conditions on the same test dilemmas using paired score differences. Focus on whether relevant retrieval improves scores over direct and random conditions, and whether dissimilar examples help or distract.
 
 With 100 test cases and 5 answer conditions, the main experiment produces 500 responses. At roughly 23 criteria per case, this means about 11500 criterion judgments per judge, excluding development runs. We will confirm the exact count and estimate costs during development.
 
